@@ -6,7 +6,7 @@ var arr = [];
 // horse seashell bunny cube sphere5 sphere20
 function readTextFile() {
     var rawFile = new XMLHttpRequest();
-    rawFile.open("GET", "seashell.gts", true);
+    rawFile.open("GET", "sphere5.gts", true);
     rawFile.onreadystatechange = function() {
         if (rawFile.readyState === 4) {
             var allText = rawFile.responseText;
@@ -48,7 +48,7 @@ function fillArrays(arr) {
     let i;
 
     function sphereHeightFunction(x, y) {
-        return (Math.sqrt((1 * Scale) * (1 * Scale) - x * x - y * y));
+        return (((1 * Scale) * (1 * Scale) - (x * x) - (y * y)));
     }
     for (i = 1; i <= num_vertices; i++) {
         let [x, y, z] = arr[i].split(" ");
@@ -204,7 +204,8 @@ var criticalPoints = () => {
 }
 
 function findCricticalPoints() {
-    let criticalPoints = [];
+    let maximaPoints = [];
+    let saddlePoints = [];
     for (let i = 1; i <= num_vertices; i++) {
         // findMaximums(i);
         // findSaddles(i);
@@ -213,9 +214,9 @@ function findCricticalPoints() {
         let currSign;
         let numberOfChangeOfSign = 0;
 
-        if (heightFunctionList[i_link[0]] > 0)
+        if (heightFunctionList[i_link[0]] > heigthOfi)
             currSign = 1;
-        if (heightFunctionList[i_link[0]] < 0)
+        if (heightFunctionList[i_link[0]] < heigthOfi)
             currSign = -1;
 
         // 1 represents positive and -1 represents negative
@@ -228,17 +229,27 @@ function findCricticalPoints() {
                 currSign = -1;
                 numberOfChangeOfSign++;
             }
+            if (heightFunctionList[node] === heigthOfi)
+                numberOfChangeOfSign += 100
         }
         if (numberOfChangeOfSign === 0) {
-            console.log("SUCCESSFULL", i);
+            console.log("Maxima or Minima", i);
             console.log(LinkStruct[i], heigthOfi);
             for (let node of i_link) {
-                console.log(heightFunctionList[node]);
+                console.log(heightFunctionList[node], node);
             }
-            criticalPoints.push(i);
+            maximaPoints.push(i);
+        }
+        if (numberOfChangeOfSign === 3) {
+            console.log("Saddle", i);
+            console.log(LinkStruct[i], heigthOfi);
+            for (let node of i_link) {
+                console.log(heightFunctionList[node], node);
+            }
+            saddlePoints.push(i);
         }
     }
-    return criticalPoints;
+    return [maximaPoints, saddlePoints];
 }
 
 
@@ -352,10 +363,20 @@ function init() {
     scene.add(gridHelper);
 
     // displaying critical points
-    let critPoints = findCricticalPoints();
-    for (let p of critPoints) {
+    let [maximaPoints, saddlePoints] = findCricticalPoints();
+    for (let p of maximaPoints) {
         const geometry = new THREE.SphereGeometry(0.5, 32, 32); // (radius, widthSegments, heightSegments)
-        const material = new THREE.MeshBasicMaterial({ color: 0xfff0000 });
+        const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const sphere = new THREE.Mesh(geometry, material);
+        sphere.position.x = vertices[p][0];
+        sphere.position.y = vertices[p][1];
+        sphere.position.z = vertices[p][2];
+
+        scene.add(sphere);
+    }
+    for (let p of saddlePoints) {
+        const geometry = new THREE.SphereGeometry(0.5, 32, 32); // (radius, widthSegments, heightSegments)
+        const material = new THREE.MeshBasicMaterial({ color: 0xff00 });
         const sphere = new THREE.Mesh(geometry, material);
         sphere.position.x = vertices[p][0];
         sphere.position.y = vertices[p][1];
