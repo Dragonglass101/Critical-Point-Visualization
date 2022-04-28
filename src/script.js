@@ -477,23 +477,23 @@ let perFrameIncrement = 50;
 function animate(time) {
     controls.update();
 
-    // if (frames % 1 === 0) {
-    //     if (frames * perFrameIncrement <= num_triangles) {
-    //         scene.remove(newObj);
-    //         newObj = new THREE.Object3D();
-    //         for (let f = 0; f < frames * perFrameIncrement; f++) {
-    //             newObj.add(EdgeGeometrys[f]);
-    //         }
-    //         scene.add(newObj);
-    //     }
-    // }
-
-    scene.remove(newObj);
-    newObj = new THREE.Object3D();
-    for (let f = 0; f < num_triangles; f++) {
-        newObj.add(EdgeGeometrys[f]);
+    if (frames % 1 === 0) {
+        if (frames * perFrameIncrement <= num_triangles) {
+            scene.remove(newObj);
+            newObj = new THREE.Object3D();
+            for (let f = 0; f < frames * perFrameIncrement; f++) {
+                newObj.add(EdgeGeometrys[f]);
+            }
+            scene.add(newObj);
+        }
     }
-    scene.add(newObj);
+
+    // scene.remove(newObj);
+    // newObj = new THREE.Object3D();
+    // for (let f = 0; f < num_triangles; f++) {
+    //     newObj.add(EdgeGeometrys[f]);
+    // }
+    // scene.add(newObj);
 
     if (frames * perFrameIncrement <= num_triangles)
         frames++;
