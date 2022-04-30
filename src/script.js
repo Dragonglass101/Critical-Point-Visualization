@@ -7,9 +7,11 @@ import { NumberKeyframeTrack } from "three";
 
 var arr = [];
 // horse seashell bunny cube sphere5 sphere20 Tangle Torus space_station x_wing helix2 RzTorus
+var fileName = "RzTorus.gts"
+
 function readTextFile() {
     var rawFile = new XMLHttpRequest();
-    rawFile.open("GET", "RzTorus.gts", true);
+    rawFile.open("GET", fileName, true);
     rawFile.onreadystatechange = function() {
         if (rawFile.readyState === 4) {
             var allText = rawFile.responseText;
@@ -462,6 +464,7 @@ function init() {
     // Controls.open()
 
     console.log("betti0:", betti0, "  betti1:", betti1, "  betti2:", betti2);
+    document.getElementById("betti-numbers").innerText = `Betti0: ${betti0}  Betti1: ${betti1}  Betti2: ${betti2}`
 }
 
 function onWindowResize() {
@@ -471,18 +474,43 @@ function onWindowResize() {
 }
 
 let frames = 0;
+let isPause = false;
 let newObj = new THREE.Object3D();
 let perFrameIncrement = 50;
+
+const speedSlider = document.getElementById("speed-slider");
+speedSlider.onchange = function() {
+    frames = 0;
+    perFrameIncrement = speedSlider.value;
+}
+
+document.getElementById("reanimate-btn").onclick = function() { frames = 0; }
+const pauseBtn = document.getElementById("pause-btn");
+pauseBtn.onclick = function() {
+    if (!isPause) {
+        isPause = true;
+        pauseBtn.innerText = "Play"
+    } else {
+        isPause = false;
+        pauseBtn.innerText = "Pause";
+    }
+}
 
 function animate(time) {
     controls.update();
 
-    if (frames % 1 === 0) {
+    if (!isPause) {
         if (frames * perFrameIncrement <= num_triangles) {
             scene.remove(newObj);
             newObj = new THREE.Object3D();
-            for (let f = 0; f < frames * perFrameIncrement; f++) {
-                newObj.add(EdgeGeometrys[f]);
+            if ((frames + 1) * perFrameIncrement <= num_triangles) {
+                for (let f = 0; f < frames * perFrameIncrement; f++) {
+                    newObj.add(EdgeGeometrys[f]);
+                }
+            } else {
+                for (let f = 0; f < num_triangles; f++) {
+                    newObj.add(EdgeGeometrys[f]);
+                }
             }
             scene.add(newObj);
         }
@@ -495,7 +523,7 @@ function animate(time) {
     // }
     // scene.add(newObj);
 
-    if (frames * perFrameIncrement <= num_triangles)
+    if (frames * perFrameIncrement <= num_triangles && !isPause)
         frames++;
 
     renderer.render(scene, camera);
